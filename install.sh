@@ -21,7 +21,7 @@ TEMPLATE_FILE_NAME="import-workflow-credentials.json"
 # --- Ham kiem tra quyen root ---
 check_root() {
   if [[ $EUID -ne 0 ]]; then
-    echo -e "\n${RED}[!] Loi: Ban can chay script cai dat nay voi quyen root (sudo).${NC}\n"
+    echo -e "\n${RED}[!] Lỗi: Bạn cần chạy script cài đặt này với quyền root (sudo).${NC}\n"
     exit 1
   fi
 }
@@ -33,17 +33,17 @@ check_downloader() {
     elif command -v wget &> /dev/null; then
         DOWNLOADER="wget"
     else
-        echo -e "${RED}[!] Loi: Khong tim thay 'curl' hoac 'wget'. Vui long cai dat mot trong hai cong cu nay.${NC}"
+        echo -e "${RED}[!] Lỗi: Không tìm thấy 'curl' hoặc 'wget'. Vui lòng cài đặt một trong hai công cụ này.${NC}"
         exit 1
     fi
-    echo -e "${GREEN}[*] Su dung '$DOWNLOADER' de tai file.${NC}"
+    echo -e "${GREEN}[*] Sử dụng '$DOWNLOADER' để tải file.${NC}"
 }
 
 # --- Ham tai script ---
 download_script() {
-    echo -e "${YELLOW}[*] Dang tai script tu: ${SCRIPT_URL}${NC}"
+    echo -e "${YELLOW}[*] Đang tải script từ: ${SCRIPT_URL}${NC}"
     if [[ "$DOWNLOADER" == "curl" ]]; then
-        # Tai file bang curl, theo doi redirect (-L), bao loi neu fail (-f), im lang (-s), output vao file tam (-o)
+        # Tải file bằng curl, theo dõi redirect (-L), báo lỗi nếu fail (-f), im lang (-s), output vào file tam (-o)
         curl -fsSL -o "$TEMP_SCRIPT" "$SCRIPT_URL"
         local download_status=$?
     else # wget
@@ -53,24 +53,24 @@ download_script() {
     fi
 
     if [[ $download_status -ne 0 ]]; then
-        echo -e "${RED}[!] Loi: Tai script that bai (kiem tra URL hoac ket noi mang).${NC}"
-        rm -f "$TEMP_SCRIPT" # Xoa file tam neu co loi
+        echo -e "${RED}[!] Lỗi: Tải script thất bại (kiểm tra URL hoặc kết nối mạng).${NC}"
+        rm -f "$TEMP_SCRIPT" # Xóa file tam nếu có lỗi
         exit 1
     fi
 
     # Kiem tra xem file tai ve co noi dung khong
     if [[ ! -s "$TEMP_SCRIPT" ]]; then
-        echo -e "${RED}[!] Loi: File tai ve rong (kiem tra URL).${NC}"
+        echo -e "${RED}[!] Lỗi: File tải về rỗng (kiểm tra URL).${NC}"
         rm -f "$TEMP_SCRIPT"
         exit 1
     fi
 
-    echo -e "${GREEN}[+] Tai script thanh cong.${NC}"
+    echo -e "${GREEN}[+] Tải script thành công.${NC}"
 }
 
 # --- Ham cai dat ---
 install_script() {
-    echo -e "${YELLOW}[*] Bat dau qua trinh cai dat...${NC}"
+    echo -e "${YELLOW}[*] Bắt đầu quá trình cài đặt...${NC}"
 
     # 1. Kiem tra quyen root
     check_root
@@ -83,68 +83,68 @@ install_script() {
 
     # 4. Tao thu muc cai dat neu chua co
     if [[ ! -d "$INSTALL_DIR" ]]; then
-        echo -e "${YELLOW}[*] Tao thu muc cai dat: ${INSTALL_DIR}${NC}"
-        # Su dung sudo vi tao thu muc trong he thong
+        echo -e "${YELLOW}[*] Tạo thư mục cài đặt: ${INSTALL_DIR}${NC}"
+        # Sử dụng sudo vì tạo thư mục trong hệ thống
         if ! sudo mkdir -p "$INSTALL_DIR"; then
-            echo -e "${RED}[!] Loi: Khong the tao thu muc ${INSTALL_DIR}.${NC}"
+            echo -e "${RED}[!] Lỗi: Không thể tạo thư mục ${INSTALL_DIR}.${NC}"
             rm -f "$TEMP_SCRIPT"
             exit 1
         fi
     fi
 
     # 5. Di chuyen script vao thu muc cai dat
-    echo -e "${YELLOW}[*] Di chuyen script den: ${INSTALL_PATH}${NC}"
+    echo -e "${YELLOW}[*] Di chuyển script đến: ${INSTALL_PATH}${NC}"
     if ! sudo mv "$TEMP_SCRIPT" "$INSTALL_PATH"; then
-        echo -e "${RED}[!] Loi: Khong the di chuyen script den ${INSTALL_PATH}.${NC}"
-        rm -f "$TEMP_SCRIPT" # Van co gang xoa file tam
+        echo -e "${RED}[!] Lỗi: Không thể di chuyển script đến ${INSTALL_PATH}.${NC}"
+        rm -f "$TEMP_SCRIPT" # Vẫn cố gắng xóa file tam
         exit 1
     fi
 
     # 6. Cap quyen thuc thi cho script
-    echo -e "${YELLOW}[*] Cap quyen thuc thi cho script...${NC}"
+    echo -e "${YELLOW}[*] Cấp quyền thực thi cho script...${NC}"
     if ! sudo chmod +x "$INSTALL_PATH"; then
-        echo -e "${RED}[!] Loi: Khong the cap quyen thuc thi cho ${INSTALL_PATH}.${NC}"
+        echo -e "${RED}[!] Lỗi: Không thể cấp quyền thực thi cho ${INSTALL_PATH}.${NC}"
         # Co the can go bo file da copy neu khong cap quyen duoc? Tuy chon.
         # sudo rm -f "$INSTALL_PATH"
         exit 1
     fi
 
     # 7. Tao thu muc n8n-templates ngang hang voi root va tai ve file template
-    echo -e "${YELLOW}[*] Tao thu muc n8n-templates...${NC}"
+    echo -e "${YELLOW}[*] Tạo thư mục n8n-templates...${NC}"
     if [[ ! -d "/n8n-templates" ]]; then
         sudo mkdir -p "/n8n-templates"
         if [[ $? -ne 0 ]]; then
-            echo -e "${RED}[!] Loi: Khong the tao thu muc /n8n-templates.${NC}"
+            echo -e "${RED}[!] Lỗi: Không thể tạo thư mục /n8n-templates.${NC}"
             exit 1
         fi
     fi
-    echo -e "${YELLOW}[*] Tai ve file template...${NC}"
+    echo -e "${YELLOW}[*] Tải về file template...${NC}"
 
     curl -fsSL -o "/n8n-templates/${TEMPLATE_FILE_NAME}" "https://cloudfly.vn/download/n8n-host/templates/${TEMPLATE_FILE_NAME}"
     if [[ $? -ne 0 ]]; then
-        echo -e "${RED}[!] Loi: Khong the tai ve file template.${NC}"
+        echo -e "${RED}[!] Lỗi: Không thể tải về file template.${NC}"
         exit 1
     fi
     
     # 8. Kiem tra lai
     if [[ -f "$INSTALL_PATH" && -x "$INSTALL_PATH" ]]; then
-        echo -e "\n${GREEN}[+++] Cai dat thanh cong! ${NC}"
-        echo -e "Ban co the chay cong cu bang lenh: ${CYAN}${SCRIPT_NAME}${NC}"
-        echo -e "De go bo, chay lenh: ${CYAN}${SCRIPT_NAME} --uninstall${NC}"
+        echo -e "\n${GREEN}[+++] Cài đặt thành công! ${NC}"
+        echo -e "Bạn có thể chạy công cụ bằng lệnh: ${CYAN}${SCRIPT_NAME}${NC}"
+        echo -e "Để gỡ bỏ, chạy lệnh: ${CYAN}${SCRIPT_NAME} --uninstall${NC}"
     else
-        echo -e "\n${RED}[!] Cai dat that bai. Khong tim thay file thuc thi tai ${INSTALL_PATH}.${NC}"
+        echo -e "\n${RED}[!] Cài đặt thất bại. Không tìm thấy file thực thi tại ${INSTALL_PATH}.${NC}"
         exit 1
     fi
 }
 
 # Kiem tra xem script da duoc cai dat chua
 if [[ -f "$INSTALL_PATH" ]]; then
-    echo -e "${YELLOW}[!] Cong cu '${SCRIPT_NAME}' duong nhu da duoc cai dat tai '${INSTALL_PATH}'.${NC}"
-    echo -e "Neu ban muon cai dat lai, hay chay: ${CYAN}bash $0 --force-install${NC}"
-    echo -e "Neu ban muon go bo, hay chay: ${CYAN}${SCRIPT_NAME} --uninstall${NC}"
+    echo -e "${YELLOW}[!] Công cụ '${SCRIPT_NAME}' được đặt tại '${INSTALL_PATH}'.${NC}"
+    echo -e "Nếu bạn muốn cài đặt lại, hãy chạy: ${CYAN}bash $0 --force-install${NC}"
+    echo -e "Nếu bạn muốn gỡ bỏ, hãy chạy: ${CYAN}${SCRIPT_NAME} --uninstall${NC}"
     exit 1
 else
-    # Neu chua cai dat, tien hanh cai dat
+    # Nếu chưa cài đặt, tiến hành cài đặt
     install_script
 fi
 
