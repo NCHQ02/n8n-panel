@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # --- Dinh nghia mau sac ---
-RED='\e[1;31m'     # Mau do (dam)
-GREEN='\e[1;32m'   # Mau xanh la (dam)
-YELLOW='\e[1;33m'  # Mau vang (dam)
-CYAN='\e[1;36m'    # Mau xanh cyan (dam)
-NC='\e[0m'        # Reset mau (tro ve binh thuong)
+RED='\e[38;5;217m'      # pastel pink
+GREEN='\e[38;5;151m'    # pastel green
+YELLOW='\e[38;5;229m'   # pastel yellow
+CYAN='\e[38;5;159m'     # pastel blue
+NC='\e[0m'              # reset
 
 # --- Bien Global ---
 N8N_DIR="/n8n-cloud" # Thu muc chua toan bo cai dat N8N
@@ -632,7 +632,7 @@ install() {
   fi
 
   echo -e "\n${CYAN}===================================================${NC}"
-  echo -e "${CYAN}         Bat dau qua trinh cai dat N8N Cloud        ${NC}"
+  echo -e "${CYAN}    Bat dau qua trinh cai dat N8N Cloud - BMSG        ${NC}"
   echo -e "${CYAN}===================================================${NC}\n"
 
   trap 'RC=$?; stop_spinner; if [[ $RC -ne 0 && $RC -ne 130 ]]; then echo -e "\n${RED}Da xay ra loi trong qua trinh cai dat (Ma loi: $RC).${NC}"; fi; read -r -p "Nhan Enter de quay lai menu..."; return 0;' ERR SIGINT SIGTERM
@@ -984,7 +984,7 @@ upgrade_n8n_version() {
     cd - > /dev/null
     stop_spinner
 
-    echo -e "\n${GREEN}Nang cap N8N hoan tat!${NC}"
+    echo -e "\n${GREEN}Nang cap N8N hoan tat! - HQ ${NC}"
     echo -e "${YELLOW}N8N da duoc cap nhat len phien ban '${GREEN}latest${YELLOW}' moi nhat.${NC}"
     echo -e "Vui long kiem tra giao dien web cua N8N de xac nhan phien ban."
     
@@ -1431,11 +1431,11 @@ show_menu() {
   clear
   printf "${CYAN}+==================================================================================+${NC}\n"
   printf "${CYAN}|                                N8N Cloud Manager                                 |${NC}\n"
-  printf "${CYAN}|                    Powered by CloudFly - https://cloudfly.vn                     |${NC}\n"
+  printf "${CYAN}|                          Create & Custom By BanhMiSaiGon                         |${NC}\n"
   printf "${CYAN}+==================================================================================+${NC}\n"
   echo ""
   echo -e " ${YELLOW}Phim tat: Nhan Ctrl + C hoac nhap 0 de thoat${NC}" 
-  echo -e " ${GREEN}Xem huong dan:${NC} ${CYAN}https://cloudfly.vn/link/n8n-cloud-docs${NC}"
+  echo -e " ${GREEN}Xem huong dan:${NC} ${CYAN}https://docs.google.com/document/d/1EmJObjeM-77QJcekn1IBm8JEZyxi5_HP49VVsEr6Dwk/edit?usp=sharing${NC}"
   echo "------------------------------------------------------------------------------------"
   printf " %-3s %-35s %-3s ${YELLOW}%s${NC}\n" "1)" "Cai dat N8N" "6)" "Export tat ca (workflow & credentials)" 
   printf " %-3s %-35s %-3s %s\n" "2)" "Thay doi ten mien" "7)" "Import workflow & credentials"
@@ -1443,7 +1443,7 @@ show_menu() {
   printf " %-3s %-35s %-3s ${RED}%s${NC}\n" "4)" "Tat xac thuc 2 buoc (2FA/MFA)" "9)" "Xoa N8N va cai dat lai" 
   printf " %-3s %-35s %-3s %s\n" "5)" "Dat lai thong tin dang nhap"
   echo "------------------------------------------------------------------------------------"
-  read -p "$(echo -e ${CYAN}'Nhap lua chon cua ban (1-9) [ 0 = Thoat ]: '${NC})" choice
+  read -p "$(echo -e ${CYAN}'Nhap lua chon cua ban (1-9) [ 0 = Thoat! ]: '${NC})" choice
   echo ""
 }
 
@@ -1462,7 +1462,7 @@ while true; do
     9) reinstall_n8n ;;   
     *) 
       if [[ "$choice" == "0" ]]; then
-        echo "Tam biet!"
+        echo "Tam biet nhe - BanhMiSaiGon!"
         exit 0
       # Kiem tra cac lua chon khong hop le
       elif ! [[ "$choice" =~ ^[1-9]$ ]]; then
