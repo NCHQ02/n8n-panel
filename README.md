@@ -1,11 +1,10 @@
 # N8N Cloud Manager
 
+# Custom by Nguyễn Cao Hoàng Quý
+
 ## Giới thiệu
 
-N8N Cloud Manager là công cụ hỗ trợ quản lý N8N trên CloudFly, bao gồm các chức năng như cài đặt, nâng cấp, xuất/nhập dữ liệu, và cấu hình hệ thống.
-
-Phát triển bởi   
-![CloudFly Logo](https://cloudfly.vn/_next/image?url=%2Fimage%2Flogo%2Flogo.webp&w=256&q=75)
+N8N Cloud Manager là công cụ hỗ trợ quản lý N8N trên VPS. Script này bao gồm các chức năng như cài đặt, nâng cấp, xuất/nhập dữ liệu, và cấu hình hệ thống.
 
 ---
 
@@ -22,7 +21,7 @@ sudo bash install.sh
 hoặc có thể chạy 1 lệnh duy nhất sau (ưu tiên hơn)
 
 ```bash
-sudo bash -c 'URL=https://cloudfly.vn/download/n8n-panel/install.sh && if [ -f /usr/bin/curl ];then curl -ksSO $URL ;else wget --no-check-certificate -O install.sh $URL;fi;bash install.sh'
+sudo bash -c 'URL=https://raw.githubusercontent.com/NCHQ02/n8n-panel/main/install.sh && if [ -f /usr/bin/curl ]; then curl -fsSL -o install.sh $URL; else wget -qO install.sh $URL; fi; bash install.sh'
 ```
 
 ### 2. Các chức năng chính
@@ -46,6 +45,7 @@ Công cụ sẽ hiển thị menu chính với các chức năng sau:
 | 7      | Import workflows & credentials từ template |
 | 8      | Lấy thông tin Redis                        |
 | 9      | Xóa N8N và cài đặt lại                     |
+| 0      | Thoát khỏi công cụ                         |
 
 ---
 
@@ -113,4 +113,4 @@ n8n-host --uninstall
 
 ## Tài liệu tham khảo
 
-- [Hướng dẫn sử dụng N8N Cloud](https://cloudfly.vn/link/n8n-cloud-docs)
+- [Hướng dẫn sử dụng N8N Cloud Manager](https://docs.google.com/document/d/1EmJObjeM-77QJcekn1IBm8JEZyxi5_HP49VVsEr6Dwk/edit?usp=sharing)
