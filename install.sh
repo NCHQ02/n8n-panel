@@ -3,14 +3,13 @@
 # install.sh - Cai dat Cong cu N8N Host
 
 # --- Dinh nghia mau sac va bien ---
-RED='\e[1;31m'
-GREEN='\e[1;32m'
-YELLOW='\e[1;33m'
-CYAN='\e[1;36m'
-NC='\e[0m'
-
+RED='\e[38;5;217m'      # pastel pink
+GREEN='\e[38;5;151m'    # pastel green
+YELLOW='\e[38;5;229m'   # pastel yellow
+CYAN='\e[38;5;159m'     # pastel blue
+NC='\e[0m'              # reset
 # !!! THAY DOI URL NAY thanh link tai script cua ban !!!
-SCRIPT_URL="https://cloudfly.vn/download/n8n-host/n8n-host.sh" # VI DU: Link raw GitHub
+SCRIPT_URL="https://raw.githubusercontent.com/NCHQ02/n8n-panel/main/n8n-host.sh" # VI DU: Link raw GitHub
 
 SCRIPT_NAME="n8n-host" #path/to/script/name
 # Khuyen nghi dung /usr/local/bin cho script tuy chinh
