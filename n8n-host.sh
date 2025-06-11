@@ -1462,7 +1462,8 @@ while true; do
     9) reinstall_n8n ;;   
     *) 
       if [[ "$choice" == "0" ]]; then
-        echo "Tam biet nhe - BanhMiSaiGon!"
+        echo "Tạm Biệt nhé!  - BanhMiSaiGon mãi iu Bạn!"
+        echo "Design By Nguyễn Cao Hoàng Quý!"
         exit 0
       # Kiem tra cac lua chon khong hop le
       elif ! [[ "$choice" =~ ^[1-9]$ ]]; then
