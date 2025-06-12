@@ -1439,7 +1439,7 @@ show_menu() {
   echo -e " ${GREEN}Xem hướng dẫn:${NC} ${CYAN}https://docs.google.com/document/d/1EmJObjeM-77QJcekn1IBm8JEZyxi5_HP49VVsEr6Dwk/edit?usp=sharing${NC}"
   echo "------------------------------------------------------------------------------------"
   printf " %-3s %-35s %-3s ${YELLOW}%s${NC}\n" "1)" "Cài đặt N8N" "6)" "Export tất cả (workflow & credentials)" 
-  printf " %-3s %-35s %-3s %s\n" "2)" "Thay doi ten mien" "7)" "Import workflow & credentials"
+  printf " %-3s %-35s %-3s %s\n" "2)" "Thay đổi tên miền" "7)" "Import workflow & credentials"
   printf " %-3s %-35s %-3s ${GREEN}%s${NC}\n" "3)" "Nâng cấp phiên bản N8N" "8)" "Lấy thông tin Redis" 
   printf " %-3s %-35s %-3s ${RED}%s${NC}\n" "4)" "Tắt xác thực 2 bước (2FA/MFA)" "9)" "Xóa N8N và cài đặt lại" 
   printf " %-3s %-35s %-3s %s\n" "5)" "Đặt lại thông tin đăng nhập"
