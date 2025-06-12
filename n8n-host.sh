@@ -8,7 +8,7 @@ CYAN='\e[38;5;159m'     # pastel blue
 NC='\e[0m'              # reset
 
 # --- Bien Global ---
-N8N_DIR="/n8n-cloud" # Thu muc chua toan bo cai dat N8N
+N8N_DIR="/n8n-cloud" # Thư mục chứa toàn bộ cài đặt N8N
 ENV_FILE="${N8N_DIR}/.env"
 DOCKER_COMPOSE_FILE="${N8N_DIR}/docker-compose.yml"
 DOCKER_COMPOSE_CMD="docker compose" 
@@ -17,14 +17,14 @@ N8N_CONTAINER_NAME="n8n_app"
 N8N_SERVICE_NAME="n8n" 
 NGINX_EXPORT_INCLUDE_DIR="/etc/nginx/n8n_export_includes" 
 NGINX_EXPORT_INCLUDE_FILE_BASENAME="n8n_export_location" 
-TEMPLATE_DIR="/n8n-templates" # Thu muc chua template tren host
-TEMPLATE_FILE_NAME="import-workflow-credentials.json" # Ten file template
-INSTALL_PATH="/usr/local/bin/n8n-host" # Duong dan cai dat script
+TEMPLATE_DIR="/n8n-templates" # Thư mục chứa template trên host
+TEMPLATE_FILE_NAME="import-workflow-credentials.json" # Tên file template
+INSTALL_PATH="/usr/local/bin/n8n-host" # Đường dẫn cài đặt script
 
 # --- Ham Kiem tra ---
 check_root() {
   if [[ $EUID -ne 0 ]]; then
-    echo -e "\n${RED}[!] Loi: Ban can chay script voi quyen Quan tri vien (root).${NC}\n"
+    echo -e "\n${RED}[!] Lỗi: Bạn cần chạy script với quyền Quản trị viên (root).${NC}\n"
     exit 1
   fi
 }
@@ -37,7 +37,7 @@ is_package_installed() {
   dpkg -s "$1" &> /dev/null
 }
 
-# --- Ham Phu tro ---
+# --- Hàm Phụ trợ ---
 get_public_ip() {
   local ip
   ip=$(curl -s --ipv4 https://ifconfig.co) || \
@@ -46,7 +46,7 @@ get_public_ip() {
   ip=$(hostname -I | awk '{print $1}')
   echo "$ip"
   if [[ -z "$ip" ]]; then
-    echo -e "${RED}[!] Khong the lay dia chi IP public cua server.${NC}"
+    echo -e "${RED}[!] Không thể lấy địa chỉ IP public của server.${NC}"
     return 1 
   fi
   return 0
@@ -61,7 +61,7 @@ update_env_file() {
   local key="$1"
   local value="$2"
   if [ ! -f "${ENV_FILE}" ]; then
-    echo -e "${RED}Loi: File ${ENV_FILE} khong ton tai. Khong the cap nhat.${NC}"
+    echo -e "${RED}Lỗi: File ${ENV_FILE} không tồn tại. Không thể cập nhật.${NC}"
     return 1
   fi
   if grep -q "^${key}=" "${ENV_FILE}"; then
@@ -116,9 +116,9 @@ run_silent_command() {
       if [[ $SPINNER_PID -ne 0 ]]; then
           stop_spinner
       fi
-      echo -e "\n${RED}Loi trong khi [${message}] (xu ly ngam).${NC}" 
-      echo -e "${RED}Chi tiet loi da duoc ghi vao: ${log_file}${NC}"
-      echo -e "${RED}5 dong cuoi cua log:${NC}"
+      echo -e "\n${RED}Lỗi trong khi [${message}] (xử lý ngầm).${NC}" 
+      echo -e "${RED}Chi tiết lỗi đã được ghi vào: ${log_file}${NC}"
+      echo -e "${RED}5 dòng cuối của log:${NC}"
       tail -n 5 "${log_file}" | sed 's/^/    /'
       return 1 
     fi
@@ -136,9 +136,9 @@ run_silent_command() {
       sudo rm -f "${log_file}"
       return 0
     else
-      echo -e "${RED}That bai.${NC}" 
-      echo -e "${RED}Chi tiet loi da duoc ghi vao: ${log_file}${NC}"
-      echo -e "${RED}5 dong cuoi cua log:${NC}"
+      echo -e "${RED}Thất bại.${NC}" 
+      echo -e "${RED}Chi tiết lỗi đã được ghi vào: ${log_file}${NC}"
+      echo -e "${RED}5 dòng cuối của log:${NC}"
       tail -n 5 "${log_file}" | sed 's/^/    /'
       return 1 
     fi
@@ -148,13 +148,13 @@ run_silent_command() {
 # --- Cac buoc Cai dat ---
 
 install_prerequisites() {
-  start_spinner "Kiem tra va cai dat cac goi phu thuoc..."
+  start_spinner "Kiểm tra và cài đặt các gói phụ trợ..."
 
-  run_silent_command "Cap nhat danh sach goi" "apt-get update -y" "false" 
+  run_silent_command "Cập nhật danh sách gói" "apt-get update -y" "false" 
   if [ $? -ne 0 ]; then return 1; fi 
 
   if ! is_package_installed nginx; then
-    run_silent_command "Cai dat Nginx" "apt-get install -y nginx" "false"
+    run_silent_command "Cài đặt Nginx" "apt-get install -y nginx" "false"
     if [ $? -ne 0 ]; then return 1; fi
     sudo systemctl enable nginx >/dev/null 2>&1
     sudo systemctl start nginx >/dev/null 2>&1
@@ -162,10 +162,10 @@ install_prerequisites() {
 
   if ! command_exists docker; then
     if ! curl -fsSL https://get.docker.com -o get-docker.sh; then
-        echo -e "${RED}Loi tai script cai dat Docker.${NC}"
+        echo -e "${RED}Lỗi tải script cài đặt Docker.${NC}"
         return 1 
     fi
-    run_silent_command "Cai dat Docker tu script" "sh get-docker.sh" "false"
+    run_silent_command "Cài đặt Docker từ script" "sh get-docker.sh" "false"
     if [ $? -ne 0 ]; then rm get-docker.sh; return 1; fi
     sudo usermod -aG docker "$(whoami)" >/dev/null 2>&1
     rm get-docker.sh
@@ -180,7 +180,7 @@ install_prerequisites() {
     if [[ -z "$LATEST_COMPOSE_VERSION" ]]; then
         LATEST_COMPOSE_VERSION="1.29.2" 
     fi
-    run_silent_command "Tai Docker Compose v${LATEST_COMPOSE_VERSION}" \
+    run_silent_command "Tải Docker Compose v${LATEST_COMPOSE_VERSION}" \
       "curl -L \"https://github.com/docker/compose/releases/download/${LATEST_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)\" -o /usr/local/bin/docker-compose" "false"
     if [ $? -ne 0 ]; then return 1; fi
     sudo chmod +x /usr/local/bin/docker-compose
@@ -188,17 +188,17 @@ install_prerequisites() {
   fi
 
   if ! command_exists certbot; then
-    run_silent_command "Cai dat Certbot va plugin Nginx" "apt-get install -y certbot python3-certbot-nginx" "false"
+    run_silent_command "Cài đặt Certbot và plugin Nginx" "apt-get install -y certbot python3-certbot-nginx" "false"
     if [ $? -ne 0 ]; then return 1; fi
   fi
 
   if ! command_exists dig; then
-    run_silent_command "Cai dat dnsutils (cho dig)" "apt-get install -y dnsutils" "false"
+    run_silent_command "Cài đặt dnsutils (cho dig)" "apt-get install -y dnsutils" "false"
     if [ $? -ne 0 ]; then return 1; fi
   fi
 
   if ! command_exists curl; then
-    run_silent_command "Cai dat curl" "apt-get install -y curl" "false"
+    run_silent_command "Cài đặt curl" "apt-get install -y curl" "false"
     if [ $? -ne 0 ]; then return 1; fi
   fi
 
@@ -208,11 +208,11 @@ install_prerequisites() {
   fi
   
   stop_spinner
-  echo -e "${GREEN}Kiem tra va cai dat goi phu thuoc hoan tat.${NC}" 
+  echo -e "${GREEN}Kiểm tra và cài đặt gói phụ trợ hoàn tất.${NC}" 
 }
 
 setup_directories_and_env_file() {
-  start_spinner "Thiet lap thu muc va file .env..."
+  start_spinner "Thiết lập thư mục và file .env..."
   if [ ! -d "${N8N_DIR}" ]; then
     sudo mkdir -p "${N8N_DIR}"
   fi
@@ -224,17 +224,18 @@ setup_directories_and_env_file() {
   sudo mkdir -p "${TEMPLATE_DIR}" 
 
   stop_spinner
-  echo -e "${GREEN}Thiet lap thu muc va file .env hoan tat.${NC}" 
+  echo -e "${GREEN}Thiết lập thư mục và file .env hoàn tất.${NC}"
+  echo -e "${YELLOW}File .env của bạn được tạo tại: ${CYAN}${ENV_FILE}${NC}${YELLOW}. Bạn có thể chỉnh sửa nó để cấu hình N8N.${NC}"
 }
 
 get_domain_and_dns_check_reusable() {
   local result_var_name="$1"
   local current_domain_to_avoid="${2:-}"
-  local prompt_message="${3:-Nhap ten mien ban muon su dung cho n8n (vi du: n8n.example.com)}"
+  local prompt_message="${3:-Nhập tên miền bạn muốn sử dụng cho N8N (ví dụ: n8n.example.com)}"
 
-  trap 'echo -e "\n${YELLOW}Huy bo nhap ten mien.${NC}"; return 1;' SIGINT SIGTERM
+  trap 'echo -e "\n${YELLOW}Hủy bỏ nhập tên miền.${NC}"; return 1;' SIGINT SIGTERM
 
-  echo -e "${CYAN}---> Nhap thong tin ten mien (Nhan Ctrl+C de huy bo)...${NC}" 
+  echo -e "${CYAN}---> Nhập thông tin tên miền (Nhấn Ctrl+C để hủy bỏ)...${NC}" 
   local new_domain_input 
   local server_ip
   local resolved_ip
@@ -245,7 +246,7 @@ get_domain_and_dns_check_reusable() {
     return 1; 
   fi 
 
-  echo -e "Dia chi IP public cua server la: ${GREEN}${server_ip}${NC}"
+  echo -e "Địa chỉ IP public của server là: ${GREEN}${server_ip}${NC}"
 
   while true; do
     local prompt_string
@@ -253,23 +254,23 @@ get_domain_and_dns_check_reusable() {
     echo -n "$prompt_string"
 
     if ! read -r new_domain_input; then
-        echo -e "\n${YELLOW}Huy bo nhap ten mien.${NC}"
+        echo -e "\n${YELLOW}Hủy bỏ nhập tên miền.${NC}"
         trap - SIGINT SIGTERM 
         return 1
     fi
 
     if [[ -z "$new_domain_input" ]]; then
-      echo -e "${RED}Ten mien khong duoc de trong. Vui long nhap lai.${NC}"
+      echo -e "${RED}Tên miền không được để trống. Vui lòng nhập lại.${NC}"
       continue
     fi
 
     if [[ -n "$current_domain_to_avoid" && "$new_domain_input" == "$current_domain_to_avoid" ]]; then
-      echo -e "${YELLOW}Ten mien moi (${new_domain_input}) trung voi ten mien hien tai (${current_domain_to_avoid}).${NC}"
-      echo -e "${YELLOW}Vui long nhap mot ten mien khac.${NC}"
+      echo -e "${YELLOW}Tên miền mới (${new_domain_input}) trùng với tên miền hiện tại (${current_domain_to_avoid}).${NC}"
+      echo -e "${YELLOW}Vui lòng nhập một tên miền khác.${NC}"
       continue
     fi
 
-    start_spinner "Kiem tra DNS cho ${new_domain_input}..."
+    start_spinner "Kiểm tra DNS cho ${new_domain_input}..."
     resolved_ip=$(timeout 5 dig +short A "$new_domain_input" @1.1.1.1 | tail -n1)
     if [[ -z "$resolved_ip" ]]; then
         local cname_target 
@@ -281,31 +282,31 @@ get_domain_and_dns_check_reusable() {
     stop_spinner 
 
     if [[ "$resolved_ip" == "$server_ip" ]]; then
-      echo -e "${GREEN}DNS cho ${new_domain_input} da duoc tro ve IP server chinh xac (${resolved_ip}).${NC}"
+      echo -e "${GREEN}DNS cho ${new_domain_input} đã được trỏ về IP server chính xác (${resolved_ip}).${NC}"
       printf -v "$result_var_name" "%s" "$new_domain_input"
       trap - SIGINT SIGTERM 
       break
     else
-      echo -e "${RED}Loi: Ten mien ${new_domain_input} (tro ve ${resolved_ip:-'khong tim thay ban ghi A/CNAME hoac timeout'}) chua duoc tro ve IP server (${server_ip}).${NC}"
-      echo -e "${YELLOW}Vui long tro DNS A record cua ten mien ${new_domain_input} ve dia chi IP ${server_ip} va doi DNS cap nhat.${NC}"
+      echo -e "${RED}Lỗi: Tên miền ${new_domain_input} (trỏ về ${resolved_ip:-'không tìm thấy bản ghi A/CNAME hoặc timeout'}) chưa được trỏ về IP server (${server_ip}).${NC}"
+      echo -e "${YELLOW}Vui lòng trỏ DNS A record của tên miền ${new_domain_input} về địa chỉ IP ${server_ip} và đợi DNS cập nhật.${NC}"
       
-      trap 'echo -e "\n${YELLOW}Huy bo nhap ten mien.${NC}"; return 1;' SIGINT SIGTERM
+      trap 'echo -e "\n${YELLOW}Hủy bỏ nhập tên miền.${NC}"; return 1;' SIGINT SIGTERM
       local choice_prompt
-      choice_prompt=$(echo -e "Nhan Enter de kiem tra lai, hoac '${CYAN}s${NC}' de bo qua, '${CYAN}0${NC}' de huy bo: ")
+      choice_prompt=$(echo -e "Nhấn Enter để kiểm tra lại, hoặc '${CYAN}s${NC}' để bỏ qua, '${CYAN}0${NC}' để hủy bỏ: ")
       echo -n "$choice_prompt"
       if ! read -r dns_choice; then
-          echo -e "\n${YELLOW}Huy bo nhap lua chon.${NC}"
+          echo -e "\n${YELLOW}Hủy bỏ nhập lựa chọn.${NC}"
           trap - SIGINT SIGTERM 
           return 1
       fi
 
       if [[ "$dns_choice" == "s" || "$dns_choice" == "S" ]]; then
-        echo -e "${YELLOW}Bo qua kiem tra DNS. Dam bao ban da tro DNS chinh xac.${NC}"
+        echo -e "${YELLOW}Bỏ qua kiểm tra DNS. Đảm bảo bạn đã trỏ DNS chính xác.${NC}"
         printf -v "$result_var_name" "%s" "$new_domain_input"
         trap - SIGINT SIGTERM 
         break
       elif [[ "$dns_choice" == "0" ]]; then
-        echo -e "${YELLOW}Huy bo nhap ten mien.${NC}"
+        echo -e "${YELLOW}Hủy bỏ nhập tên miền.${NC}"
         trap - SIGINT SIGTERM
         return 1 
       fi
@@ -317,7 +318,7 @@ get_domain_and_dns_check_reusable() {
 
 
 generate_credentials() {
-  start_spinner "Tao thong tin dang nhap va cau hinh..."
+  start_spinner "Tạo thông tin đăng nhập và cấu hình..."
   update_env_file "N8N_ENCRYPTION_KEY" "$(generate_random_string 64)"
   local system_timezone 
   system_timezone=$(timedatectl show --property=Timezone --value 2>/dev/null) 
@@ -330,12 +331,12 @@ generate_credentials() {
   update_env_file "REDIS_PASSWORD" "$(generate_random_string 32)"
   
   stop_spinner
-  echo -e "${GREEN}Thong tin dang nhap va cau hinh da duoc luu vao ${ENV_FILE}.${NC}"
-  echo -e "${YELLOW}Quan trong: Vui long sao luu file ${ENV_FILE}.${NC}"
+  echo -e "${GREEN}Thông tin đăng nhập và cấu hình đã được lưu vào ${ENV_FILE}.${NC}"
+  echo -e "${YELLOW}Quan trọng: Vui lòng sao lưu file ${ENV_FILE}.${NC}"
 }
 
 create_docker_compose_config() {
-  start_spinner "Tao file docker-compose.yml..."
+  start_spinner "Tạo file docker-compose.yml..."
   local n8n_encryption_key_val postgres_user_val postgres_password_val postgres_db_val redis_password_val
   local domain_name_val generic_timezone_val
 
@@ -424,22 +425,22 @@ EOF
 }
 
 start_docker_containers() {
-  start_spinner "Khoi chay cai dat N8N Cloud..."
+  start_spinner "Khởi chạy cài đặt N8N Cloud..."
   cd "${N8N_DIR}" || { return 1; } 
   
-  run_silent_command "Tai Docker images" "$DOCKER_COMPOSE_CMD pull" "false" 
+  run_silent_command "Tải Docker images" "$DOCKER_COMPOSE_CMD pull" "false" 
   
-  run_silent_command "Khoi chay container qua docker-compose" "$DOCKER_COMPOSE_CMD up -d --force-recreate" "false" 
+  run_silent_command "Khởi chạy container qua docker-compose" "$DOCKER_COMPOSE_CMD up -d --force-recreate" "false" 
   if [ $? -ne 0 ]; then return 1; fi
 
   sleep 15 
   stop_spinner
-  echo -e "${GREEN}N8N Cloud da khoi chay.${NC}"
+  echo -e "${GREEN}N8N Cloud đã khởi chạy.${NC}"
   cd - > /dev/null
 }
 
 configure_nginx_and_ssl() {
-  start_spinner "Cau hinh Nginx va SSL voi Certbot..."
+  start_spinner "Cấu hình Nginx và SSL với Certbot..."
   local domain_name 
   local user_email 
   domain_name=$(grep "^DOMAIN_NAME=" "${ENV_FILE}" | cut -d'=' -f2)
@@ -447,7 +448,7 @@ configure_nginx_and_ssl() {
   local webroot_path="/var/www/html" 
 
   if [[ -z "$domain_name" || -z "$user_email" ]]; then
-    echo -e "${RED}Khong tim thay DOMAIN_NAME hoac LETSENCRYPT_EMAIL trong file .env.${NC}"
+    echo -e "${RED}Không tìm thấy DOMAIN_NAME hoặc LETSENCRYPT_EMAIL trong file .env.${NC}"
     return 1
   fi
 
@@ -456,7 +457,7 @@ configure_nginx_and_ssl() {
   sudo mkdir -p "${webroot_path}/.well-known/acme-challenge"
   sudo chown www-data:www-data "${webroot_path}" -R 
 
-  run_silent_command "Tao cau hinh Nginx ban dau cho HTTP challenge" \
+  run_silent_command "Tạo cấu hình Nginx ban đầu cho HTTP challenge" \
     "bash -c \"cat > ${nginx_conf_file}\" <<EOF
 server {
     listen 80;
@@ -472,7 +473,7 @@ EOF" "false" || return 1
 
   sudo ln -sfn "${nginx_conf_file}" "/etc/nginx/sites-enabled/${domain_name}.conf"
   
-  run_silent_command "Kiem tra cau hinh Nginx HTTP" "nginx -t" "false" || return 1
+  run_silent_command "Kiểm tra cấu hình Nginx HTTP" "nginx -t" "false" || return 1
   
   sudo systemctl reload nginx >/dev/null 2>&1
 
@@ -1418,7 +1419,7 @@ if [[ "$1" == "--uninstall" ]]; then
 fi
 
 show_help() {
-    echo "N8N Cloud Manager - Cong cu quan ly N8N tren CloudFly"
+    echo "N8N Cloud Manager - Cong cu quan ly N8N"
     echo "Cach su dung: n8n-host [tuy chon]"
     echo "Tuy chon:"
     echo "  --help      Hien thi thong tin tro giup nay"
